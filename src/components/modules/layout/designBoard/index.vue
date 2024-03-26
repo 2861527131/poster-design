@@ -1,61 +1,61 @@
 <template>
-  <div id="page-design" ref="page_design" :style="{ paddingTop: dPaddingTop + 'px' }">
-    <!-- <el-scrollbar> -->
-    <div
-      id="out-page"
-      class="out-page"
-      :style="{
-        width: (dPage.width * dZoom) / 100 + 120 + 'px',
-        height: (dPage.height * dZoom) / 100 + 120 + 'px',
-        opacity: 1 - (dZoom < 100 ? dPage.tag : 0),
-      }"
-    >
-      <slot />
+  <div id="main">
+    <div id="page-design" ref="page_design" :style="{ paddingTop: dPaddingTop + 'px', minWidth: (dPage.width * dZoom) / 100 + 120 + 'px' }" >
       <div
-        :id="pageDesignCanvasId"
-        class="design-canvas"
-        :data-type="dPage.type"
-        :data-uuid="dPage.uuid"
+        id="out-page"
+        class="out-page"
         :style="{
-          width: dPage.width + 'px',
-          height: dPage.height + 'px',
-          transform: 'scale(' + dZoom / 100 + ')',
-          transformOrigin: (dZoom >= 100 ? 'center' : 'left') + ' top',
-          backgroundColor: dPage.backgroundColor,
-          backgroundImage: `url(${dPage?.backgroundImage})`,
-          backgroundSize: dPage?.backgroundTransform?.x ? 'auto' : 'cover',
-          backgroundPositionX: (dPage?.backgroundTransform?.x || 0) + 'px',
-          backgroundPositionY: (dPage?.backgroundTransform?.y || 0) + 'px',
-          opacity: dPage.opacity + (dZoom < 100 ? dPage.tag : 0),
+          width: (dPage.width * dZoom) / 100 + 120 + 'px',
+          height: (dPage.height * dZoom) / 100 + 120 + 'px',
+          opacity: 1 - (dZoom < 100 ? dPage.tag : 0),
         }"
-        @mousemove="dropOver($event)"
-        @drop="drop($event)"
-        @mouseup="drop($event)"
       >
-        <!-- <grid-size /> -->
+        <slot />
+        <div
+          :id="pageDesignCanvasId"
+          class="design-canvas"
+          :data-type="dPage.type"
+          :data-uuid="dPage.uuid"
+          :style="{
+            width: dPage.width + 'px',
+            height: dPage.height + 'px',
+            transform: 'scale(' + dZoom / 100 + ')',
+            transformOrigin: (dZoom >= 100 ? 'center' : 'left') + ' top',
+            backgroundColor: dPage.backgroundColor,
+            backgroundImage: `url(${dPage?.backgroundImage})`,
+            backgroundSize: dPage?.backgroundTransform?.x ? 'auto' : 'cover',
+            backgroundPositionX: (dPage?.backgroundTransform?.x || 0) + 'px',
+            backgroundPositionY: (dPage?.backgroundTransform?.y || 0) + 'px',
+            opacity: dPage.opacity + (dZoom < 100 ? dPage.tag : 0),
+          }"
+          @mousemove="dropOver($event)"
+          @drop="drop($event)"
+          @mouseup="drop($event)"
+        >
+          <!-- <grid-size /> -->
 
-        <!-- :class="{
-            layer: true,
-            'layer-active': getIsActive(layer.uuid),
-            'layer-hover': layer.uuid === dHoverUuid || dActiveElement.parent === layer.uuid,
-          }" -->
-        <component :is="layer.type" v-for="layer in getlayers()" :id="layer.uuid" :key="layer.uuid" :class="['layer', { 'layer-hover': layer.uuid === dHoverUuid || dActiveElement.parent === layer.uuid, 'layer-no-hover': dActiveElement.uuid === layer.uuid }]" :data-title="layer.type" :params="layer" :parent="dPage" :data-type="layer.type" :data-uuid="layer.uuid">
-          <template v-if="layer.isContainer">
-            <!-- :class="{
-                layer: true,
-                'layer-active': getIsActive(widget.uuid),
-                'layer-no-hover': dActiveElement.uuid !== widget.parent && dActiveElement.parent !== widget.parent,
-                'layer-hover': widget.uuid === dHoverUuid,
-              }" -->
-            <component :is="widget.type" v-for="widget in getChilds(layer.uuid)" :key="widget.uuid" child :class="['layer', { 'layer-no-hover': dActiveElement.uuid !== widget.parent && dActiveElement.parent !== widget.parent }]" :data-title="widget.type" :params="widget" :parent="layer" :data-type="widget.type" :data-uuid="widget.uuid" />
-          </template>
-        </component>
+          <!-- :class="{
+              layer: true,
+              'layer-active': getIsActive(layer.uuid),
+              'layer-hover': layer.uuid === dHoverUuid || dActiveElement.parent === layer.uuid,
+            }" -->
+          <component :is="layer.type" v-for="layer in getlayers()" :id="layer.uuid" :key="layer.uuid" :class="['layer', { 'layer-hover': layer.uuid === dHoverUuid || dActiveElement.parent === layer.uuid, 'layer-no-hover': dActiveElement.uuid === layer.uuid }]" :data-title="layer.type" :params="layer" :parent="dPage" :data-type="layer.type" :data-uuid="layer.uuid">
+            <template v-if="layer.isContainer">
+              <!-- :class="{
+                  layer: true,
+                  'layer-active': getIsActive(widget.uuid),
+                  'layer-no-hover': dActiveElement.uuid !== widget.parent && dActiveElement.parent !== widget.parent,
+                  'layer-hover': widget.uuid === dHoverUuid,
+                }" -->
+              <component :is="widget.type" v-for="widget in getChilds(layer.uuid)" :key="widget.uuid" child :class="['layer', { 'layer-no-hover': dActiveElement.uuid !== widget.parent && dActiveElement.parent !== widget.parent }]" :data-title="widget.type" :params="widget" :parent="layer" :data-type="widget.type" :data-uuid="widget.uuid" />
+            </template>
+          </component>
 
-        <!-- <ref-line v-if="dSelectWidgets.length === 0" /> -->
-        <!-- <size-control v-if="dSelectWidgets.length === 0" /> -->
+          <!-- <ref-line v-if="dSelectWidgets.length === 0" /> -->
+          <!-- <size-control v-if="dSelectWidgets.length === 0" /> -->
+        </div>
       </div>
     </div>
-    <!-- </el-scrollbar> -->
   </div>
 </template>
 
@@ -70,6 +70,8 @@ import getComponentsData from '@/common/methods/DesignFeatures/setComponents'
 import { debounce } from 'throttle-debounce'
 import { move, moveInit } from '@/mixins/move'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
+import { useCanvasStore, useControlStore, usePageStore } from '@/pinia'
+import { storeToRefs } from 'pinia'
 // 页面设计组件
 type TProps = {
   pageDesignCanvasId: string
@@ -88,12 +90,17 @@ type TSetting = {
 }
 
 const store = useStore()
+const controlStore = useControlStore()
 const { pageDesignCanvasId } = defineProps<TProps>()
 const {
-  dPaddingTop, dPage, dZoom, dScreen, dWidgets,
-  dActiveElement, dSelectWidgets, dAltDown, dDraging,
-  dHoverUuid, showRotatable
-} = useSetupMapGetters(['dPaddingTop', 'dPage', 'dZoom', 'dScreen', 'dWidgets', 'dActiveElement', 'dHoverUuid', 'dSelectWidgets', 'dAltDown', 'dDraging', 'showRotatable'])
+  dWidgets,
+  dActiveElement, dSelectWidgets, dAltDown,
+  dHoverUuid
+} = useSetupMapGetters(['dWidgets', 'dActiveElement', 'dHoverUuid', 'dSelectWidgets', 'dAltDown'])
+const { dPage } = storeToRefs(usePageStore())
+const { dZoom, dPaddingTop, dScreen } = storeToRefs(useCanvasStore())
+const { dDraging, showRotatable } = storeToRefs(useControlStore())
+
 
 let _dropIn: string | null = ''
 let _srcCache: string | null = ''
@@ -154,7 +161,10 @@ async function drop(e: MouseEvent) {
   const dropIn = _dropIn
   _dropIn = ''
   store.dispatch('setDropOver', '-1')
-  store.commit('setShowMoveable', false) // 清理上一次的选择
+
+  // store.commit('setShowMoveable', false) // 清理上一次的选择
+  controlStore.setShowMoveable(false) // 清理上一次的选择
+
   let lost = eventTarget.className !== 'design-canvas' // className === 'design-canvas' , id: "page-design-canvas"
   // e.stopPropagation()
   e.preventDefault()
@@ -184,24 +194,24 @@ async function drop(e: MouseEvent) {
       }
     })
     const half = {
-      x: parent.width ? (parent.width * store.getters.dZoom) / 100 / 2 : 0,
-      y: parent.height ? (parent.height * store.getters.dZoom) / 100 / 2 : 0
+      x: parent.width ? (parent.width * dZoom.value) / 100 / 2 : 0,
+      y: parent.height ? (parent.height * dZoom.value) / 100 / 2 : 0
     }
     componentItem.forEach((element) => {
-      element.left += (lost ? lostX - half.x : e.layerX - half.x) * (100 / store.getters.dZoom)
-      element.top += (lost ? lostY - half.y : e.layerY - half.y) * (100 / store.getters.dZoom)
+      element.left += (lost ? lostX - half.x : e.layerX - half.x) * (100 / dZoom.value)
+      element.top += (lost ? lostY - half.y : e.layerY - half.y) * (100 / dZoom.value)
     })
     store.dispatch('addGroup', componentItem)
     // addGroup(item)
   }
   // 设置坐标
   const half = { 
-    x: setting.width ? (setting.width * store.getters.dZoom) / 100 / 2 : 0,
-    y: setting.height ? (setting.height * store.getters.dZoom) / 100 / 2 : 0
+    x: setting.width ? (setting.width * dZoom.value) / 100 / 2 : 0,
+    y: setting.height ? (setting.height * dZoom.value) / 100 / 2 : 0
   }
   // const half = { x: (this.dDragInitData.offsetX * this.dZoom) / 100, y: (this.dDragInitData.offsetY * this.dZoom) / 100 }
-  setting.left = (lost ? lostX - half.x : e.layerX - half.x) * (100 / store.getters.dZoom)
-  setting.top = (lost ? lostY - half.y : e.layerY - half.y) * (100 / store.getters.dZoom)
+  setting.left = (lost ? lostX - half.x : e.layerX - half.x) * (100 / dZoom.value)
+  setting.top = (lost ? lostY - half.y : e.layerY - half.y) * (100 / dZoom.value)
   if (lost && type === 'image') {
     // 如果不从画布加入，且不是图片类型，则判断是否加入到svg中
     const target = await getTarget(eventTarget)
@@ -210,7 +220,9 @@ async function drop(e: MouseEvent) {
     const uuid = target.getAttribute('data-uuid')
     if (targetType === 'w-mask') {
       // 容器
-      store.commit('setShowMoveable', true) // 恢复选择
+      // store.commit('setShowMoveable', true) // 恢复选择
+      controlStore.setShowMoveable(true) // 恢复选择
+
       const widget = dWidgets.value.find((item: {uuid: string}) => item.uuid === uuid)
       widget.imgUrl = item.value.url
       // if (e.target.className.baseVal) {
@@ -222,7 +234,10 @@ async function drop(e: MouseEvent) {
         const widget = dWidgets.value.find((item: {uuid: string}) => item.uuid == dropIn)
         widget.imgUrl = item.value.url
         console.log('加入+', widget)
-        store.commit('setShowMoveable', true) // 恢复选择
+
+        // store.commit('setShowMoveable', true) // 恢复选择
+        controlStore.setShowMoveable(true) // 恢复选择
+
       } else {
         store.dispatch('addWidget', setting) // 正常加入面板
         // addWidget(setting) // 正常加入面板
@@ -333,13 +348,17 @@ function getChilds(uuid: string) {
 </script>
 
 <style lang="less" scoped>
+#main {
+  overflow: auto; position: relative;
+}
 #page-design {
-  height: 100%;
+  scrollbar-width: none;
+  min-height: 100%;
   // display: flex;
   // align-items: center;
   overflow: auto;
   position: relative;
-  width: 100%;
+  // width: 100%;
   .out-page {
     margin: 0 auto;
     padding: 60px;

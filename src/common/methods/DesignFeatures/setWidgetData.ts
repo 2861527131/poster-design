@@ -2,16 +2,17 @@
  * @Author: ShawnPhang
  * @Date: 2022-02-22 15:06:14
  * @Description: 设置元素时根据类型处理
- * @LastEditors: ShawnPhang <site: book.palxp.com>
- * @LastEditTime: 2023-07-03 10:10:53
+ * @LastEditors: ShawnPhang <https://m.palxp.cn>
+ * @LastEditTime: 2024-03-22 16:00:17
  */
 // import store from '@/store'
 // import { getImage } from '../getImgDetail'
 import setImageData from '@/common/methods/DesignFeatures/setImage'
 // import wText from '@/components/modules/widgets/wText/wText.vue'
 import { wTextSetting } from '@/components/modules/widgets/wText/wTextSetting'
-import wImage from '@/components/modules/widgets/wImage/wImage.vue'
-import wSvg from '@/components/modules/widgets/wSvg/wSvg.vue'
+// import wImage from '@/components/modules/widgets/wImage/wImage.vue'
+import wImageSetting from '@/components/modules/widgets/wImage/wImageSetting'
+import { wSvgSetting } from '@/components/modules/widgets/wSvg/wSvgSetting'
 
 export default async function(type: string, item: TCommonItemData, data: Record<string, any>) {
   let setting = data
@@ -23,7 +24,7 @@ export default async function(type: string, item: TCommonItemData, data: Record<
     setting.fontWeight = item.fontWeight
   }
   if (type === 'image' || type === 'mask') {
-    setting = JSON.parse(JSON.stringify(wImage.setting))
+    setting = JSON.parse(JSON.stringify(wImageSetting))
     const img = await setImageData(item.value)
     setting.width = img.width
     setting.height = img.height // parseInt(100 / item.value.ratio, 10)
@@ -33,7 +34,7 @@ export default async function(type: string, item: TCommonItemData, data: Record<
     setting.mask = item.value.url
   }
   if (type === 'svg') {
-    setting = JSON.parse(JSON.stringify(wSvg.setting))
+    setting = JSON.parse(JSON.stringify(wSvgSetting))
     const img = await setImageData(item.value)
     setting.width = img.width
     setting.height = img.height // parseInt(100 / item.value.ratio, 10)

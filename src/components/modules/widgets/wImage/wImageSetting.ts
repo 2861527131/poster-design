@@ -1,9 +1,7 @@
-import { DotType } from "qr-code-styling"
-
-export type TWQrcodeSetting = {
+export type TImageSetting = {
   name: string
   type: string
-  uuid: string | number
+  uuid: string
   width: number
   height: number
   left: number
@@ -13,28 +11,31 @@ export type TWQrcodeSetting = {
   radius: number
   opacity: number
   parent: string
-  url: string
-  dotType: DotType
-  dotColorType: string
-  dotRotation: number
-  dotColor: string
-  dotColor2: string
-  value: string
-  setting: Record<string, any>[]
+  imgUrl: string
+  mask: string
+  setting: [],
+  rotate: number
   record: {
     width: number
     height: number
     minWidth: number
     minHeight: number
     dir: string
+  },
+  lock: false,
+  isNinePatch: false,
+  flip: string | null
+  sliceData: {
+    ratio: number
+    left: number
   }
   cropEdit?: boolean
 }
 
-export const wQrcodeSetting: TWQrcodeSetting = {
-  name: '二维码',
-  type: 'w-qrcode',
-  uuid: -1,
+const setting: TImageSetting = {
+  name: '图片',
+  type: 'w-image',
+  uuid: '-1',
   width: 300,
   height: 300,
   left: 0,
@@ -44,14 +45,10 @@ export const wQrcodeSetting: TWQrcodeSetting = {
   radius: 0,
   opacity: 1,
   parent: '-1',
-  url: '',
-  dotType: 'classy',
-  dotColorType: 'single',
-  dotRotation: 270,
-  dotColor: '#35495E',
-  dotColor2: '#35495E',
-  value: 'https://xp.palxp.cn',
+  imgUrl: '',
+  mask: '',
   setting: [],
+  rotate: 0,
   record: {
     width: 0,
     height: 0,
@@ -59,4 +56,13 @@ export const wQrcodeSetting: TWQrcodeSetting = {
     minHeight: 10,
     dir: 'all',
   },
+  lock: false,
+  isNinePatch: false,
+  flip: '',
+  sliceData: {
+    ratio: 0,
+    left: 0,
+  }
 }
+
+export default setting

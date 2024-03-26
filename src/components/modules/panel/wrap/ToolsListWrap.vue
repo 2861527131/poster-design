@@ -32,13 +32,17 @@ import { useRoute } from 'vue-router'
 import imageCutout from '@/components/business/image-cutout'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
 import { wQrcodeSetting } from '../../widgets/wQrcode/wQrcodeSetting'
+import { storeToRefs } from 'pinia'
+import { useControlStore, usePageStore } from '@/pinia'
 
 const store = useStore()
+const controlStore = useControlStore()
+
 const route = useRoute()
 
 const loadDone = ref(false)
 const imageCutoutRef = ref<typeof imageCutout | null>(null)
-const { dPage } = useSetupMapGetters(['dPage'])
+const { dPage } = storeToRefs(usePageStore())
 
 onMounted(() => {
   // this.getDataList()
@@ -59,7 +63,9 @@ onMounted(() => {
 // }
 
 function addQrcode() {
-  store.commit('setShowMoveable', false) // 清理掉上一次的选择
+  // store.commit('setShowMoveable', false) // 清理掉上一次的选择
+  controlStore.setShowMoveable(false) // 清理掉上一次的选择
+
   let setting = JSON.parse(JSON.stringify(wQrcodeSetting))
   const { width: pW, height: pH } = dPage.value
   setting.left = pW / 2 - setting.width / 2

@@ -2,7 +2,7 @@
  * @Author: ShawnPhang
  * @Date: 2021-08-27 15:16:07
  * @Description: 模板列表
- * @LastEditors: ShawnPhang <https://m.palxp.cn>, Jeremy Yu <https://github.com/JeremyYu-cn>
+ * @LastEditors: ShawnPhang <https://m.palxp.cn>
  * @Date: 2024-03-06 21:16:00
 -->
 <template>
@@ -11,7 +11,7 @@
     <el-divider v-show="state.title" style="margin-top: 1.7rem" content-position="left">
       <span style="font-weight: bold">{{ state.title }}</span>
     </el-divider>
-
+    
     <ul ref="listRef" v-infinite-scroll="load" class="infinite-list" :infinite-scroll-distance="150" style="overflow: auto">
       <img-water-fall :listData="state.list" @select="selectItem" />
       <div v-show="state.loading" class="loading"><i class="el-icon-loading"></i> 拼命加载中</div>
@@ -32,7 +32,7 @@ import useConfirm from '@/common/methods/confirm'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
 import imgWaterFall from './components/imgWaterFall.vue'
 import { IGetTempListData } from '@/api/home'
-import useUserStore from '@/store/modules/base/user'
+import {useControlStore, usePageStore, useUserStore} from '@/pinia'
 
 type TState = {
   loading: boolean
@@ -52,8 +52,12 @@ type TPageOptions = {
 const listRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 const router = useRouter()
+
 const store = useStore()
+const controlStore = useControlStore()
+
 const userStore = useUserStore()
+const pageStore = usePageStore()
 const state = reactive<TState>({
   loading: false,
   loadDone: false,
@@ -112,7 +116,10 @@ function checkHeight() {
 }
 // ...mapActions(['selectWidget', 'updatePageData', 'setTemplate', 'pushHistory']),
 async function selectItem(item: IGetTempListData) {
-  store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+
+  // store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  controlStore.setShowMoveable(false) // 清理掉上一次的选择框
+
   if (dHistoryParams.value.length > 0) {
     const isPass = await useConfirm('提示', '使用模板后，当前页面将会被替换，是否继续', 'warning')
     if (!isPass) {
@@ -135,7 +142,9 @@ async function selectItem(item: IGetTempListData) {
   const { page, widgets } = result
   console.log(widgets)
 
-  store.commit('setDPage', page)
+  pageStore.setDPage(page)
+  // store.commit('setDPage', page)
+  
   store.dispatch('setTemplate', widgets)
   // setTemplate(widgets)
   setTimeout(() => {
@@ -196,6 +205,11 @@ defineExpose({
   height: 100%;
   margin-top: 1rem;
   padding-bottom: 150px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.infinite-list::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
 }
 // .list {
 //   width: 100%;

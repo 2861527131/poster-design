@@ -61,7 +61,8 @@ import RightClickMenu from '@/components/business/right-click-menu/RcMenu.vue'
 import Moveable from '@/components/business/moveable/Moveable.vue'
 import shortcuts from '@/mixins/shortcuts'
 // import wText from '@/components/modules/widgets/wText/wText.vue'
-import wImage from '@/components/modules/widgets/wImage/wImage.vue'
+// import wImage from '@/components/modules/widgets/wImage/wImage.vue'
+import wImageSetting from '@/components/modules/widgets/wImage/wImageSetting'
 import useLoading from '@/common/methods/loading'
 import uploader from '@/components/common/Uploader/index.vue'
 import designBoard from '@/components/modules/layout/designBoard/index.vue'
@@ -72,6 +73,8 @@ import ProgressLoading from '@/components/common/ProgressLoading/index.vue'
 import { processPSD2Page } from '@/utils/plugins/psd'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
 import { wTextSetting } from '@/components/modules/widgets/wText/wTextSetting'
+import { useCanvasStore, useControlStore, usePageStore } from '@/pinia'
+import { storeToRefs } from 'pinia'
 
 type TState = {
   isDone: boolean
@@ -90,9 +93,15 @@ const state = reactive<TState>({
   cancelText: '',
 })
 const store = useStore()
+const controlStore = useControlStore()
+
 const route = useRoute()
 
-const { dPage, dZoom } = useSetupMapGetters(['dPage', 'dZoom'])
+// const { dZoom } = useSetupMapGetters(['dZoom'])
+const pageStore = usePageStore()
+const { dPage } = storeToRefs(pageStore)
+const { dZoom } = storeToRefs(useCanvasStore())
+
 const zoomControlRef = ref<typeof zoomControl | null>()
 
 let loading: ReturnType<typeof useLoading> | null = null
@@ -126,7 +135,7 @@ async function loadPSD(file: File) {
   setTimeout(async () => {
     const types: any = {
       text: wTextSetting,
-      image: wImage.setting,
+      image: wImageSetting,
     }
     for (let i = 0; i < data.clouds.length; i++) {
       const x: any = data.clouds[i]
@@ -137,15 +146,23 @@ async function loadPSD(file: File) {
     }
 
     const { width, height, background: bg } = data
-    store.commit('setDPage', Object.assign(store.getters.dPage, { width, height, backgroundColor: bg.color, backgroundImage: bg.image }))
+
+    pageStore.setDPage(Object.assign(pageStore.dPage, { width, height, backgroundColor: bg.color, backgroundImage: bg.image }))
+    // store.commit('setDPage', Object.assign(store.getters.dPage, { width, height, backgroundColor: bg.color, backgroundImage: bg.image }))
+    
     await loadDone()
   }, 10)
 }
 
 async function clear() {
   store.commit('setDWidgets', [])
-  store.commit('setDPage', Object.assign(store.getters.dPage, { width: 1920, height: 1080, backgroundColor: '#ffffff', backgroundImage: '' }))
-  store.commit('setShowMoveable', false)
+
+  pageStore.setDPage(Object.assign(pageStore.dPage, { width: 1920, height: 1080, backgroundColor: '#ffffff', backgroundImage: '' }))
+  // store.commit('setDPage', Object.assign(store.getters.dPage, { width: 1920, height: 1080, backgroundColor: '#ffffff', backgroundImage: '' }))
+  
+  // store.commit('setShowMoveable', false)
+  controlStore.setShowMoveable(false)
+  
   await nextTick()
   state.isDone = false
 }

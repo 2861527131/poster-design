@@ -22,6 +22,8 @@ import { useFontStore } from '@/common/methods/fonts'
 import _config from '@/config'
 import github from '@/api/github'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
+import { useControlStore, usePageStore } from '@/pinia'
+import { storeToRefs } from 'pinia'
 
 type TProps = {
   modelValue?: string
@@ -46,14 +48,17 @@ type TState = {
   loading: false,
 }
 
-const { dPage, dWidgets } = useSetupMapGetters(['dPage', 'dWidgets'])
+const { dWidgets } = useSetupMapGetters(['dWidgets'])
+const { dPage } = storeToRefs(usePageStore())
 
 const props = defineProps<TProps>()
 const emit = defineEmits<TEmits>()
 
 const route = useRoute()
 const router = useRouter()
+
 const store = useStore()
+const controlStore = useControlStore()
 
 const canvasImage = ref<typeof SaveImage | null>(null)
 const state = reactive<TState>({
@@ -85,7 +90,9 @@ let widgets: { type: string, imgUrl: string }[] = []
 let page: Record<string, any> = {}
 
 async function prepare() {
-  store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  // store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  controlStore.setShowMoveable(false) // 清理掉上一次的选择框
+
   addition = 0
   lenCount = 0
   widgets = dWidgets.value

@@ -19,6 +19,7 @@
 import {reactive, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import colorPicker from '@palxp/color-picker'
+import { useControlStore } from '@/pinia';
 
 type TProps = {
   label?: string
@@ -53,6 +54,8 @@ const props = withDefaults(defineProps<TProps>(), {
 const emit = defineEmits<TEmits>()
 
 const store = useStore()
+const controlStore = useControlStore()
+
 const state = reactive<TState>({
   innerColor: '',
   // colorLength: 0,
@@ -65,9 +68,7 @@ let first = true
     // })
 
 onMounted(() => {
-  if (props.modelValue) {
-    state.innerColor = props.modelValue + (props.modelValue.length === 7 ? 'ff' : '')
-  }
+  checkColorLength()
 })
 
 const dropColor = async (color: string) => {
@@ -90,6 +91,7 @@ watch(
   () => props.modelValue,
   (val) => {
     val !== state.innerColor && (state.innerColor = val)
+    checkColorLength()
   },
 )
 
@@ -105,23 +107,25 @@ const onChange = () => {
   emit('finish', state.innerColor)
 }
 
-// const addHistory = debounce(300, false, async (value) => {
-//   store.dispatch('pushColorToHistory', value)
-// })
-// const colorChange = debounce(150, false, async (e) => {
-//   state.innerColor = e + (e.length === 7 ? 'ff' : '')
-// })
+function checkColorLength() {
+  if (!props.modelValue) {
+    return
+  }
+  state.innerColor = props.modelValue + (props.modelValue.length === 7 ? 'ff' : '')
+}
 
 const inputBlur = (color: string) => {
   state.innerColor = color
 }
 
 const enter = () => {
-  store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  // store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  controlStore.setShowMoveable(false) // 清理掉上一次的选择框
 }
 
 const hide = () => {
-  store.commit('setShowMoveable', true) // 恢复上一次的选择框
+  // store.commit('setShowMoveable', true) // 恢复上一次的选择框
+  controlStore.setShowMoveable(true) // 恢复上一次的选择框
 }
 
 

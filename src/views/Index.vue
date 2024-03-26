@@ -73,6 +73,8 @@ import ProgressLoading from '@/components/common/ProgressLoading/index.vue'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
 import { useRoute } from 'vue-router'
 import { wGroupSetting } from '@/components/modules/widgets/wGroup/groupSetting'
+import { storeToRefs } from 'pinia'
+import { useCanvasStore, usePageStore } from '@/pinia'
 
 type TState = {
   style: CSSProperties
@@ -94,8 +96,11 @@ const beforeUnload = function (e: Event): string {
 !_config.isDev && window.addEventListener('beforeunload', beforeUnload)
 
 const {
-  dActiveElement, dHistoryParams, dCopyElement, dPage, dZoom
-} = useSetupMapGetters(['dActiveElement', 'dHistoryParams', 'dCopyElement', 'dPage', 'dZoom'])
+  dActiveElement, dHistoryParams, dCopyElement
+} = useSetupMapGetters(['dActiveElement', 'dHistoryParams', 'dCopyElement'])
+const { dPage } = storeToRefs(usePageStore())
+const { dZoom } = storeToRefs(useCanvasStore())
+
 
 const state = reactive<TState>({
   style: {
@@ -186,8 +191,8 @@ function loadData() {
   if (!optionsRef.value) return
   optionsRef.value.load(id, tempid, tempType, async () => {
     if (!zoomControlRef.value) return
-    zoomControlRef.value.screenChange()
-    await nextTick()
+    // await nextTick()
+    // zoomControlRef.value.screenChange()
     // 初始化激活的控件为page
     store.dispatch('selectWidget', { uuid: '-1' })
     // selectWidget({

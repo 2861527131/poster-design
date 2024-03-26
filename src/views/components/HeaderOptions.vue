@@ -40,7 +40,8 @@ import _config from '@/config'
 import useConfirm from '@/common/methods/confirm'
 // import wGroup from '@/components/modules/widgets/wGroup/wGroup.vue'
 import { useSetupMapGetters } from '@/common/hooks/mapGetters'
-import { useUserStore } from '@/pinia/index'
+import { useControlStore, usePageStore, useUserStore } from '@/pinia/index'
+import { storeToRefs } from 'pinia'
 
 type TProps = {
   modelValue?: boolean
@@ -65,8 +66,13 @@ const store = useStore()
 const userStore = useUserStore()
 const canvasImage = ref<typeof SaveImage | null>(null)
 const {
-  dPage, dWidgets, tempEditing, dHistory, dPageHistory
-} = useSetupMapGetters(['dPage', 'dWidgets', 'tempEditing', 'dHistory', 'dPageHistory'])
+  dWidgets, tempEditing, dHistory, dPageHistory
+} = useSetupMapGetters(['dWidgets', 'tempEditing', 'dHistory', 'dPageHistory'])
+const pageStore = usePageStore()
+const controlStore = useControlStore()
+
+const { dPage } = storeToRefs(pageStore)
+
 
 const state = reactive<TState>({
   stateBollean: false,
@@ -80,7 +86,10 @@ async function save(hasCover: boolean = false) {
   if (dHistory.value.length <= 0) {
     return
   }
-  store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  
+  // store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+  controlStore.setShowMoveable(false) // 清理掉上一次的选择框
+
   // console.log(proxy?.dPage, proxy?.dWidgets)
   const { id, tempid } = route.query
   const cover = hasCover ? await draw() : undefined
@@ -88,7 +97,9 @@ async function save(hasCover: boolean = false) {
   const { id: newId, stat, msg } = await api.home.saveWorks({ cover, id: (id as string), title: state.title || '未命名设计', data: JSON.stringify({ page: dPage.value, widgets }), temp_id: (tempid as string), width: dPage.value.width, height: dPage.value.height })
   stat !== 0 ? useNotification('保存成功', '可在"我的作品"中查看') : useNotification('保存失败', msg, { type: 'error' })
   !id && router.push({ path: '/home', query: { id: newId }, replace: true })
-  store.commit('setShowMoveable', true)
+  
+  // store.commit('setShowMoveable', true)
+  controlStore.setShowMoveable(true)
 }
 
     // 保存模板
@@ -183,7 +194,9 @@ async function load(id: number, tempId: number, type: number, cb: () => void) {
     const data = JSON.parse(content)
     state.stateBollean = !!_state
     state.title = title
-    store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+    // store.commit('setShowMoveable', false) // 清理掉上一次的选择框
+    controlStore.setShowMoveable(false)
+    
     // this.$store.commit('setDWidgets', [])
     if (type == 1) {
       // 加载文字组合组件
@@ -192,7 +205,8 @@ async function load(id: number, tempId: number, type: number, cb: () => void) {
       store.dispatch('addGroup', data)
       // addGroup(data)
     } else {
-      store.commit('setDPage', data.page)
+      pageStore.setDPage(data.page)
+      // store.commit('setDPage', data.page)
       id ? store.commit('setDWidgets', data.widgets) : store.dispatch('setTemplate', data.widgets)
     }
     cb()
