@@ -1,4 +1,14 @@
-import { defineStore } from "pinia";
+
+/*
+ * @Author: Jeremy Yu
+ * @Date: 2024-03-18 21:00:00
+ * @Description:
+ * @LastEditors: Jeremy Yu <https://github.com/JeremyYu-cn>
+ * @LastEditTime: 2024-03-18 21:00:00
+ */
+
+import { useHistoryStore } from "@/pinia";
+import { Store, defineStore } from "pinia";
 
 type TControlState = {
   /** 是否正在移动组件 */
@@ -13,6 +23,10 @@ type TControlState = {
   showMoveable: boolean
   /** 是否显示moveable的旋转按钮 */
   showRotatable: boolean
+  /** 记录是否按下alt键 / 或ctrl */
+  dAltDown: boolean
+  /** 正在编辑or裁剪的组件id */
+  dCropUuid: string
 }
 
 type TControlAction = {
@@ -22,9 +36,17 @@ type TControlAction = {
   showRefLine: (isRefLine: boolean) => void
   setShowMoveable: (isShowMoveable: boolean) => void
   setShowRotatable: (isShowRotatable: boolean) => void
+  updateAltDown: (isPressAltDown: boolean) => void
+  /** 组件调整结束 */
+  stopDResize: () => void
+  /** 组件移动结束 */
+  stopDMove: () => void
+  /** 设置正在裁剪or编辑的组件 */
+  setCropUuid: (uuid: string) => void
 }
 
-export default defineStore<"controlStore", TControlState, {}, TControlAction>("controlStore", {
+/** 全局控制配置 */
+const ControlStore =  defineStore<"controlStore", TControlState, {}, TControlAction>("controlStore", {
   state: () => ({
     dMoving: false, // 是否正在移动组件
     dDraging: false, // 是否正在抓取组件
@@ -32,6 +54,8 @@ export default defineStore<"controlStore", TControlState, {}, TControlAction>("c
     dShowRefLine: true, // 是否显示参考线
     showMoveable: false, // 全局控制选择框的显示
     showRotatable: true, // 是否显示moveable的旋转按钮
+    dAltDown: false, // 记录是否按下alt键 / 或ctrl
+    dCropUuid: '-1', // 正在编辑or裁剪的组件id
   }),
   getters: {},
   actions: {
@@ -57,5 +81,36 @@ export default defineStore<"controlStore", TControlState, {}, TControlAction>("c
     setShowRotatable(e: boolean) {
       this.showRotatable = e
     },
+    /** TODO 组合操作 */
+    updateAltDown(e: boolean) {
+      this.dAltDown = e
+      console.log('控制组合按键, 成组功能为: realCombined')
+    },
+    /** 组件调整结束 */
+    stopDResize() {
+      if (this.dResizeing) {
+        const historyStore = useHistoryStore()
+        historyStore.pushHistory('stopDResize')
+        // store.dispatch('pushHistory', 'stopDResize')
+      }
+      this.dResizeing = false
+    },
+    /** 组件移动结束 */
+    stopDMove() {
+      if (this.dMoving) {
+        const historyStore = useHistoryStore()
+        historyStore.pushHistory("stopDMove")
+        // store.dispatch('pushHistory', 'stopDMove')
+      }
+      this.dMoving = false
+    },
+    setCropUuid(uuid: string) {
+      // 设置正在裁剪or编辑的组件
+      this.dCropUuid = uuid
+    },
   }
 })
+
+export type TControlStore = Store<"controlStore", TControlState, {}, TControlAction>
+
+export default ControlStore

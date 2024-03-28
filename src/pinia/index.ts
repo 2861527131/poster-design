@@ -11,11 +11,19 @@ import useUserStore from "./base/user";
 import usePageStore from "./design/page"
 import useCanvasStore from "./design/canvas"
 import useControlStore from './design/control'
+import useHistoryStore from './design/history'
+import useWidgetStore from './design/widget'
+import useGroupStore from './design/group'
+import useForceStore from './design/force'
 
 export {
   useBaseStore,
   useUserStore,
   usePageStore,
   useCanvasStore,
-  useControlStore
+  useControlStore,
+  useHistoryStore,
+  useWidgetStore,
+  useGroupStore,
+  useForceStore,
 }

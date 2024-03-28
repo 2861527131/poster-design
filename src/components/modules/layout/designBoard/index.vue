@@ -94,12 +94,12 @@ const controlStore = useControlStore()
 const { pageDesignCanvasId } = defineProps<TProps>()
 const {
   dWidgets,
-  dActiveElement, dSelectWidgets, dAltDown,
+  dActiveElement, dSelectWidgets,
   dHoverUuid
-} = useSetupMapGetters(['dWidgets', 'dActiveElement', 'dHoverUuid', 'dSelectWidgets', 'dAltDown'])
+} = useSetupMapGetters(['dWidgets', 'dActiveElement', 'dHoverUuid', 'dSelectWidgets'])
 const { dPage } = storeToRefs(usePageStore())
 const { dZoom, dPaddingTop, dScreen } = storeToRefs(useCanvasStore())
-const { dDraging, showRotatable } = storeToRefs(useControlStore())
+const { dDraging, showRotatable, dAltDown } = storeToRefs(useControlStore())
 
 
 let _dropIn: string | null = ''
@@ -240,7 +240,6 @@ async function drop(e: MouseEvent) {
 
       } else {
         store.dispatch('addWidget', setting) // 正常加入面板
-        // addWidget(setting) // 正常加入面板
       }
     }
   } else if (type === 'bg') {
@@ -248,7 +247,6 @@ async function drop(e: MouseEvent) {
   } else if (type !== 'group') {
     console.log(setting)
     store.dispatch('addWidget', setting) // 正常加入面板
-    // addWidget(setting) // 正常加入面板
   }
   // 清除临时数据
   // this.$store.commit('selectItem', {})

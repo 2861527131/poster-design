@@ -7,7 +7,7 @@
  * @LastEditTime: 2024-03-18 21:00:00
  */
 
-import { defineStore } from 'pinia'
+import { Store, defineStore } from 'pinia'
 
 type TScreeData = {
   /** 记录编辑界面的宽度 */
@@ -21,7 +21,7 @@ type TGuidelinesData = {
   horizontalGuidelines: number[]
 }
 
-type TCanvasStore = {
+type TCanvasState = {
   /** 画布缩放百分比 */
   dZoom: number
   /** 画布垂直居中修正值 */
@@ -33,10 +33,10 @@ type TCanvasStore = {
 }
 
 type TStoreGetter = {
-  dZoom: (state: TCanvasStore) => number
-  dPaddingTop: (state: TCanvasStore) => number
-  dScreen: (state: TCanvasStore) => TScreeData
-  guidelines: (state: TCanvasStore) => TGuidelinesData
+  dZoom: (state: TCanvasState) => number
+  dPaddingTop: (state: TCanvasState) => number
+  dScreen: (state: TCanvasState) => TScreeData
+  guidelines: (state: TCanvasState) => TGuidelinesData
 }
 
 type TStoreAction = {
@@ -48,9 +48,12 @@ type TStoreAction = {
   updateScreen: (data: TScreeData) => void
   /** 修改标尺线 */
   updateGuidelines: (lines: TGuidelinesData) => void
+  /** 强制重绘画布 */
+  reChangeCanvas: () => void
 }
 
-export default defineStore<"canvasStore", TCanvasStore, TStoreGetter, TStoreAction>("canvasStore", {
+/** 画布全局设置 */
+const CanvasStore = defineStore<"canvasStore", TCanvasState, TStoreGetter, TStoreAction>("canvasStore", {
   state: () => ({
     dZoom: 0, // 画布缩放百分比
     dPaddingTop: 0, // 画布垂直居中修正值
@@ -91,6 +94,15 @@ export default defineStore<"canvasStore", TCanvasStore, TStoreGetter, TStoreActi
     /** 修改标尺线 */
     updateGuidelines(lines: TGuidelinesData) {
       this.guidelines = { ...this.guidelines, ...lines }
-    }
+    },
+    /** 强制重绘画布 */
+    reChangeCanvas() {
+      // const tag = this.dPage.tag
+      // this.dPage.tag = tag === 0 ? 0.01 : 0
+    },
   }
 })
+
+export type TCanvasStore = Store<"canvasStore", TCanvasState, TStoreGetter, TStoreAction>
+
+export default CanvasStore
